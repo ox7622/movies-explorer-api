@@ -1,5 +1,6 @@
 const bcrypt = require('bcrypt');
 const User = require('../models/user');
+const { cookieDomain } = require('../constants/env');
 const {
   status200,
 } = require('../constants/status');
@@ -8,8 +9,6 @@ const BadRequestError = require('../errors/BadRequestError');
 const NotFoundError = require('../errors/NotFoundError');
 const AccountExistsError = require('../errors/AccountExistsError');
 const LoginError = require('../errors/LoginError');
-
-const cookieDomain = '.mox.nomoredomains.work';
 
 module.exports.createUser = async (req, res, next) => {
   try {
@@ -80,7 +79,7 @@ module.exports.login = async (req, res, next) => {
         sameSite: 'None',
         secure: true,
         maxAge: 30 * 24 * 3600000,
-        domain: cookieDomain,
+        domain: process.env.NODE_ENV !== 'production' ? cookieDomain : process.env.cookieDomain,
       }).status(status200).json({ message: 'Вы успешно вошли' });
     }
     throw new LoginError('Неправильный логин или пароль');
@@ -96,7 +95,7 @@ module.exports.logout = (req, res, next) => {
   try {
     return res.clearCookie('token', {
       path: '/',
-      domain: cookieDomain,
+      domain: process.env.NODE_ENV !== 'production' ? cookieDomain : process.env.cookieDomain,
     }).status(status200).json({ message: 'Вы успешно вышли' });
   } catch (err) {
     return next(err);

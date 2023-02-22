@@ -14,7 +14,6 @@
   "parserOptions": {
     "ecmaVersion": "latest"
   },
-
   "rules": {
     "no-underscore-dangle": [
       "error",

@@ -19,6 +19,8 @@ const routerUser = require('./routes/users');
 const { validateCreateUser } = require('./middlewares/validateCreateUser');
 const { PORT, DB_LINK } = require('./constants/env');
 
+const limiter = require('./middlewares/rateLimiter');
+
 mongoose.set('strictQuery', true);
 
 const app = express();
@@ -27,6 +29,7 @@ app.use(express.json());
 app.use(cors);
 app.use(helmet());
 app.use(cookieParser());
+app.use(limiter);
 
 // подключаемся к серверу mongo
 if (process.env.NODE_ENV !== 'production') {
