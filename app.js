@@ -19,7 +19,7 @@ const routerUser = require('./routes/users');
 const { validateCreateUser } = require('./middlewares/validateCreateUser');
 const { PORT, DB_LINK } = require('./constants/env');
 
-const limiter = require('./middlewares/rateLimiter');
+const { limiter } = require('./middlewares/rateLimiter');
 
 mongoose.set('strictQuery', true);
 
