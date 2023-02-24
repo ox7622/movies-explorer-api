@@ -1,4 +1,3 @@
-/* eslint-disable consistent-return */
 const allowedCors = [
   'https://ox7622.nomoredomains.club',
   'http://ox7622.nomoredomains.club',

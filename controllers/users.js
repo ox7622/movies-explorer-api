@@ -3,8 +3,15 @@ const User = require('../models/user');
 const { cookieDomain } = require('../constants/env');
 const {
   status200,
-} = require('../constants/status');
-const { createToken, decodeToken } = require('../utils/auth');
+  userExistsText,
+  badRequestTextUser,
+  notFoundUserText,
+  accountExistsText,
+  loginErrorText,
+  loginText,
+  logoutText,
+} = require('../constants/constants');
+const { createToken } = require('../utils/auth');
 const BadRequestError = require('../errors/BadRequestError');
 const NotFoundError = require('../errors/NotFoundError');
 const AccountExistsError = require('../errors/AccountExistsError');
@@ -15,34 +22,32 @@ module.exports.createUser = async (req, res, next) => {
     const {
       name, email, password,
     } = req.body;
-    await User.init();
     const hash = await bcrypt.hash(password, 10);
     const user = await User.create({
-      name, email, password: hash,
+      ...req.body, password: hash,
     });
     return res.status(status200).json({
       name: user.name, email: user.email,
     });
   } catch (err) {
     if (err.code === 11000) {
-      return next(new AccountExistsError('Пользователь с такими данными уже есть в базе'));
+      return next(new AccountExistsError(userExistsText));
     }
     if (err.name === 'ValidationError' || err.name === 'CastError') {
-      return next(new BadRequestError('Ошибка валидации данных пользователя'));
+      return next(new BadRequestError(badRequestTextUser));
     }
     return next(err);
   }
 };
 
 module.exports.updateUser = async (req, res, next) => {
-  const userId = decodeToken(req.user);
-  if (!User.findById(userId._id)) {
-    throw new NotFoundError('Пользователь не найден');
+  if (!User.findById(req.user._id)) {
+    throw new NotFoundError(notFoundUserText);
   }
   const { name, email } = req.body;
   try {
     const user = await User.findByIdAndUpdate(
-      userId,
+      req.user._id,
       { name, email },
       {
         new: true, // обработчик then получит на вход обновлённую запись
@@ -52,10 +57,10 @@ module.exports.updateUser = async (req, res, next) => {
     return res.status(status200).json(user);
   } catch (err) {
     if (err.code === 11000) {
-      return next(new AccountExistsError('Пользователь с таким email уже есть в базе'));
+      return next(new AccountExistsError(accountExistsText));
     }
     if (err.name === 'ValidationError' || err.name === 'CastError') {
-      return next(new BadRequestError('Ошибка валидации данных пользователя'));
+      return next(new BadRequestError(badRequestTextUser));
     }
     return next(err);
   }
@@ -68,7 +73,7 @@ module.exports.login = async (req, res, next) => {
     const user = await User.findOne({ email }).select('+password');
 
     if (!user) {
-      throw new LoginError('Неправильный логин или пароль');
+      throw new LoginError(loginErrorText);
     }
     const result = await bcrypt.compare(password, user.password);
 
@@ -79,40 +84,34 @@ module.exports.login = async (req, res, next) => {
         sameSite: 'None',
         secure: true,
         maxAge: 30 * 24 * 3600000,
-        domain: process.env.NODE_ENV !== 'production' ? cookieDomain : process.env.cookieDomain,
-      }).status(status200).json({ message: 'Вы успешно вошли' });
+        domain: process.env.NODE_ENV !== 'production'
+          ? cookieDomain : process.env.cookieDomain,
+      }).status(status200).json({ message: loginText });
     }
-    throw new LoginError('Неправильный логин или пароль');
+    throw new LoginError(loginErrorText);
   } catch (err) {
     if (err.name === 'ValidationError' || err.name === 'CastError') {
-      return next(new BadRequestError('Ошибка валидации данных ссылки на аватар пользователя'));
+      return next(new BadRequestError(badRequestTextUser));
     }
     return next(err);
   }
 };
 
-module.exports.logout = (req, res, next) => {
-  try {
-    return res.clearCookie('token', {
-      path: '/',
-      domain: process.env.NODE_ENV !== 'production' ? cookieDomain : process.env.cookieDomain,
-    }).status(status200).json({ message: 'Вы успешно вышли' });
-  } catch (err) {
-    return next(err);
-  }
-};
+module.exports.logout = (req, res, next) => res.clearCookie('token', {
+  path: '/',
+  domain: process.env.NODE_ENV !== 'production' ? cookieDomain : process.env.cookieDomain,
+}).status(status200).json({ message: logoutText });
 
 module.exports.getProfile = async (req, res, next) => {
-  const userId = decodeToken(req.user);
   try {
-    const user = await User.findById(userId._id);
+    const user = await User.findById(req.user._id);
     if (!user) {
-      throw new NotFoundError('Такого пользователя в базе нет');
+      throw new NotFoundError(notFoundUserText);
     }
     return res.status(status200).json(user);
   } catch (err) {
     if (err.name === 'ValidationError' || err.name === 'CastError') {
-      return next(new BadRequestError('Ошибка валидации данных ссылки на аватар пользователя'));
+      return next(new BadRequestError(badRequestTextUser));
     }
     return next(err);
   }

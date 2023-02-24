@@ -1,4 +1,3 @@
-/* eslint-disable consistent-return */
 const jwt = require('jsonwebtoken');
 
 const LoginError = require('../errors/LoginError');
@@ -19,7 +18,8 @@ module.exports.checkToken = (req, res, next) => {
     }
 
     if (verified) {
-      req.user = authData;
+      const user = jwt.decode(authData);
+      req.user = user;
       next();
     }
   } catch (err) {

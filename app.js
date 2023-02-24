@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 require('dotenv').config();
 const express = require('express');
 const { errors } = require('celebrate');
@@ -10,16 +9,18 @@ const { cors } = require('./middlewares/cors');
 const { errorLogger, requestLogger } = require('./middlewares/logger');
 
 const { errorHandler } = require('./middlewares/errorHandler');
-const { validateLogin } = require('./middlewares/validateLogin');
+
 const { login, createUser, logout } = require('./controllers/users');
 
 const { checkToken } = require('./middlewares/checkToken');
-const routerMovie = require('./routes/movies');
-const routerUser = require('./routes/users');
-const { validateCreateUser } = require('./middlewares/validateCreateUser');
+const router = require('./routes/index');
+
+const { NotFoundError } = require('./errors/NotFoundError');
+const { validateCreateUser, validateLogin } = require('./middlewares/validation');
 const { PORT, DB_LINK } = require('./constants/env');
 
 const { limiter } = require('./middlewares/rateLimiter');
+const { pageNotFoundText } = require('./constants/constants');
 
 mongoose.set('strictQuery', true);
 
@@ -29,45 +30,32 @@ app.use(express.json());
 app.use(cors);
 app.use(helmet());
 app.use(cookieParser());
-app.use(limiter);
 
 // подключаемся к серверу mongo
-if (process.env.NODE_ENV !== 'production') {
-  mongoose.connect(DB_LINK, {
-    useNewUrlParser: true,
-  }, () => {
-    console.log('Connected to Mongo db');
-  });
-} else {
-  mongoose.connect(process.env.DB_LINK, {
-    useNewUrlParser: true,
-  }, () => {
-    console.log('Connected to Mongo db');
-  });
-}
+mongoose.connect(process.env.NODE_ENV !== 'production' ? DB_LINK : process.env.DB_LINK, {
+  useNewUrlParser: true,
+}, () => {
+  console.log('Connected to Mongo db');
+});
 
 app.use(requestLogger);
 
 app.post('/signin', validateLogin, login);
 app.post('/signup', validateCreateUser, createUser);
-app.post('/logout', logout);
+app.post('/signout', checkToken, logout);
 
-app.use('/users', checkToken, routerUser);
-app.use('/movies', checkToken, routerMovie);
+app.use('/', checkToken, router);
 
 app.use(errorLogger);
 app.use(errors());
-app.all('/*', (req, res) => res.status(404).json({ message: 'Страница не существует' }));
+
+app.all('/*', (req, res) => {
+  res.status(404).json({ message: pageNotFoundText });
+});
+app.use(limiter);
 app.use(errorHandler);
 
-if (process.env.NODE_ENV !== 'production') {
-  app.listen(PORT, () => {
-    // Если всё работает, консоль покажет, какой порт приложение слушает
-    console.log(`App listening on port ${PORT}`);
-  });
-} else {
-  app.listen(process.env.PORT, () => {
-    // Если всё работает, консоль покажет, какой порт приложение слушает
-    console.log(`App listening on port ${process.env.PORT}`);
-  });
-}
+app.listen(process.env.NODE_ENV !== 'production' ? PORT : process.env.PORT, () => {
+  // Если всё работает, консоль покажет, какой порт приложение слушает
+  console.log(`App listening on port ${PORT}`);
+});
