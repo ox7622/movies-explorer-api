@@ -1,6 +1,5 @@
 const jwt = require('jsonwebtoken');
 
-const LoginError = require('../errors/LoginError');
 const { TOKEN } = require('../constants/env');
 
 module.exports.createToken = (user) => {

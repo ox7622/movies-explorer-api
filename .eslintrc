@@ -14,8 +14,6 @@
     "ecmaVersion": "latest"
   },
   "rules": {
-    "no-unused-vars": "off",
-    "consistent-return": "off",
     "no-underscore-dangle": [
       "error",
       {

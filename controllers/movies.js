@@ -8,7 +8,7 @@ const BadRequestError = require('../errors/BadRequestError');
 const NotFoundError = require('../errors/NotFoundError');
 const AccessError = require('../errors/AccessError');
 
-module.exports.getMovies = async (req, res, next) => {
+module.exports.getMovies = async (req, res) => {
   const movie = await Movie.find({ owner: req.user._id }).exec();
   return res.status(status200).json(movie);
 };

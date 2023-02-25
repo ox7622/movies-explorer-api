@@ -1,22 +1,28 @@
 const Router = require('express').Router();
-const { validateCreateMovie, validateDeleteMovie, validateUpdateUser } = require('../middlewares/validation');
+const routerUser = require('./users');
+const routerMovie = require('./movies');
 
+const { checkToken } = require('../middlewares/checkToken');
+const NotFoundError = require('../errors/NotFoundError');
+const { pageNotFoundText } = require('../constants/constants');
 const {
-  updateUser, getProfile,
+  validateLogin, validateCreateUser,
+} = require('../middlewares/validation');
+const {
+  login, logout, createUser,
 } = require('../controllers/users');
 
-const {
-  getMovies, createMovie, deleteMovie,
-} = require('../controllers/movies');
+Router.post('/signin', validateLogin, login);
+Router.post('/signup', validateCreateUser, createUser);
+
+Router.use(checkToken);
+Router.post('/signout', logout);
+
+Router.use('/movies', routerMovie);
+Router.use('/users', routerUser);
+
+Router.all('/*', () => {
+  throw new NotFoundError(pageNotFoundText);
+});
 
 module.exports = Router;
-
-Router.get('/movies', getMovies);
-
-Router.post('/movies', validateCreateMovie, createMovie);
-
-Router.delete('/movies/:id', validateDeleteMovie, deleteMovie);
-
-Router.get('/users/me', getProfile);
-
-Router.patch('/users/me', validateUpdateUser, updateUser);

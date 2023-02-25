@@ -42,7 +42,7 @@ module.exports.validateDeleteMovie = celebrate({
 
 module.exports.validateUpdateUser = celebrate({
   body: Joi.object().keys({
-    name: Joi.string().required(),
+    name: Joi.string().min(2).max(30).required(),
     email: Joi.string().required().regex(/^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/),
   }),
 });

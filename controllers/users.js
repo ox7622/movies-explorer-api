@@ -20,7 +20,7 @@ const LoginError = require('../errors/LoginError');
 module.exports.createUser = async (req, res, next) => {
   try {
     const {
-      name, email, password,
+      password,
     } = req.body;
     const hash = await bcrypt.hash(password, 10);
     const user = await User.create({
@@ -97,7 +97,7 @@ module.exports.login = async (req, res, next) => {
   }
 };
 
-module.exports.logout = (req, res, next) => res.clearCookie('token', {
+module.exports.logout = (req, res) => res.clearCookie('token', {
   path: '/',
   domain: process.env.NODE_ENV !== 'production' ? cookieDomain : process.env.cookieDomain,
 }).status(status200).json({ message: logoutText });

@@ -31,4 +31,5 @@ module.exports.cors = (req, res, next) => {
   }
 
   next();
+  return res;
 };
