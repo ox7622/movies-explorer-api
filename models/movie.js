@@ -31,7 +31,7 @@ const movieSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
-  movieId: {
+  id: {
     type: Number,
     required: true,
   },
@@ -61,7 +61,7 @@ const movieSchema = new mongoose.Schema({
     },
   },
 
-  image: {
+  imageURL: {
     type: String,
     required: true,
     validate: {

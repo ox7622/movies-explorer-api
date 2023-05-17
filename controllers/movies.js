@@ -18,6 +18,7 @@ module.exports.createMovie = async (req, res, next) => {
     const movie = await Movie.create({
       ...req.body, owner: req.user._id,
     });
+
     return res.status(status200).json(movie);
   } catch (err) {
     if (err.name === 'ValidationError' || err.name === 'CastError') {

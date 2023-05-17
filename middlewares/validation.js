@@ -28,10 +28,10 @@ module.exports.validateCreateMovie = celebrate({
       .regex(/^https?:\/\/(wwww.)?[-._~:/?#@!$&'()*+,;=a-zA-Z0-9]+$/),
     thumbnail: Joi.string().required()
       .regex(/^https?:\/\/(wwww.)?[-._~:/?#@!$&'()*+,;=a-zA-Z0-9]+$/),
-    image: Joi.string().required()
+    imageURL: Joi.string().required()
       .regex(/^https?:\/\/(wwww.)?[-._~:/?#@!$&'()*+,;=a-zA-Z0-9]+$/),
-    movieId: Joi.number().required(),
-  }),
+    id: Joi.number().required(),
+  }).unknown(true),
 });
 
 module.exports.validateDeleteMovie = celebrate({
