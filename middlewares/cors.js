@@ -1,6 +1,6 @@
 const allowedCors = [
-  'https://ox7622.nomoredomains.club',
-  'http://ox7622.nomoredomains.club',
+  'https://mox.nomoredomains.work',
+  'http://mox.nomoredomains.work',
   'http://localhost:3000',
   'localhost:3000',
   'http://62.84.127.162',
