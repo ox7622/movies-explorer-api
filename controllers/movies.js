@@ -37,7 +37,7 @@ module.exports.deleteMovie = async (req, res, next) => {
     }
     if (movie.owner.toString() === req.user._id.toString()) {
       await Movie.findByIdAndRemove(id);
-      return res.status(status200).json({ message: movieDeleted });
+      return res.status(status200).json(movie);
     }
     throw new AccessError(accessErrorMovie);
   } catch (err) {

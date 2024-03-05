@@ -80,12 +80,12 @@ module.exports.login = async (req, res, next) => {
     if (result) {
       const token = createToken(user);
       return res.cookie('token', token, {
-        httpOnly: true,
-        sameSite: 'None',
-        secure: true,
+        // httpOnly: true,
+        // sameSite: 'None',
+        // secure: true,
         maxAge: 30 * 24 * 3600000,
-        domain: process.env.NODE_ENV !== 'production'
-          ? cookieDomain : process.env.cookieDomain,
+        //  domain: process.env.NODE_ENV !== 'production'
+        //  ? cookieDomain : process.env.cookieDomain,
       }).status(status200).json({ message: loginText });
     }
     throw new LoginError(loginErrorText);
